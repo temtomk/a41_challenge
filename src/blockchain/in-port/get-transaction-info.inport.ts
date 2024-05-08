@@ -1,11 +1,11 @@
 export type GetTransactionInfoInPortInputDto = {
-  blockNumber: number;
+  blockNumber: string;
   address: string;
 };
 
 export type GetTransactionInfoInPortOutputDto = {
-  transactionSum: number;
-  fee: number;
+  transactionSum: string;
+  fee: string;
 };
 
 export const GET_TRANSACTION_INFO_IN_PORT =

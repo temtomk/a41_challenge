@@ -1,48 +1,90 @@
+import {
+  chunk,
+  delay,
+  filter,
+  flat,
+  map,
+  peek,
+  pipe,
+  toArray,
+  toAsync,
+} from '@fxts/core';
 import { HttpService } from '@nestjs/axios';
-import { map } from 'rxjs/operators';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { lastValueFrom } from 'rxjs';
 import {
   GetTransactionInfoByAddressOutPort,
+  GetTransactionInfoByAddressOutPortInputDto,
   GetTransactionInfoByAddressOutPortOutputDto,
 } from 'src/blockchain/out-port/get-transaction-info-by-address.outport';
 
+@Injectable()
 export class GetTransactionInfoByAddressRepository
   implements GetTransactionInfoByAddressOutPort
 {
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  async execute(params): Promise<GetTransactionInfoByAddressOutPortOutputDto> {
-    const address = params.address;
-    let sendEth = 0;
-    let receiveEth = 0;
-    let fee = 0;
+  async execute(
+    params: GetTransactionInfoByAddressOutPortInputDto,
+  ): Promise<GetTransactionInfoByAddressOutPortOutputDto> {
+    const apiKey = this.configService.get<string>('INFURA_KEY');
+    const url = `https://mainnet.infura.io/v3/${apiKey}`;
 
-    params.transactions.map((transaction) => {
-      const data = {
-        jsonrpc: '2.0',
-        method: 'eth_getTransactionByHash',
-        params: [transaction],
-        id: 1,
-      };
+    const data = params.transactions.map((transaction, idx) => ({
+      jsonrpc: '2.0',
+      method: 'eth_getTransactionByHash',
+      params: [transaction],
+      id: idx + 1, // 인덱스에 1을 더해 1부터 시작하도록 조정
+    }));
 
-      this.httpService
-        .post(`https://holesky.infura.io/v3/${process.env.INFURA_KEY}`, data)
-        .pipe(
-          map((response) => response.data.result),
-          map((result) =>
-            result.filter((res) => res.from === address || res.to === address),
-          ),
-          map((res) => {
-            if (res.to === address) {
-              receiveEth += res.value;
-            }
-            if (res.from === address) {
-              sendEth += res.value;
-              fee += res.gasPrice * res.gasUsed;
-            }
-          }),
-        );
-    });
+    const getResponse = await pipe(
+      data,
+      chunk(10),
+      toAsync,
+      map((chunkedData) =>
+        delay(3000, lastValueFrom(this.httpService.post(url, chunkedData))),
+      ),
+      map((response) => response.data),
+      flat,
+      map((obj) => obj.result),
+      filter(
+        (elem) => elem.to == params.address || elem.from == params.address,
+      ),
+      peek((elem) => console.log(elem)),
+      map((result) => ({
+        to: result.to,
+        from: result.from,
+        value: result.value,
+        gasPrice: result.gasPrice,
+        gas: result.gas,
+      })),
+      toArray,
+    );
 
-    return { sendEth: sendEth, receiveEth: receiveEth, fee: fee };
+    const result = getResponse.reduce(
+      (acc, cur) => {
+        if (cur.to === params.address) {
+          acc.sendEth += BigInt(cur.value);
+        }
+
+        if (cur.from === params.address) {
+          acc.receiveEth += BigInt(cur.value);
+          acc.fee += BigInt(BigInt(cur.gasPrice) * BigInt(cur.gas));
+        }
+
+        return acc;
+      },
+      { sendEth: 0n, receiveEth: 0n, fee: 0n },
+    );
+
+    return {
+      receiveEth: result.receiveEth.toString(16),
+      sendEth: result.sendEth.toString(16),
+      fee: result.fee.toString(16),
+    };
   }
 }

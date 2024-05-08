@@ -18,7 +18,7 @@ export class TransactionController {
     return 'pong';
   }
 
-  @Get()
+  @Get('get-transaction-info')
   async GetTransactionInfo(
     @Query() query: GetTransactionInfoInPortInputDto,
   ): Promise<GetTransactionInfoInPortOutputDto> {

@@ -4,9 +4,9 @@ export type GetTransactionInfoByAddressOutPortInputDto = {
 };
 
 export type GetTransactionInfoByAddressOutPortOutputDto = {
-  receiveEth: number;
-  sendEth: number;
-  fee: number;
+  receiveEth: string;
+  sendEth: string;
+  fee: string;
 };
 
 export const GET_TRANSACTION_INFO_BY_ADDRESS_OUT_PORT =

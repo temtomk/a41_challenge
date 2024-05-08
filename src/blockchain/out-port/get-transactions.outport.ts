@@ -1,5 +1,5 @@
 export type GetTransactionsOutPortInputDto = {
-  blockNumber: number;
+  blockNumber: string;
 };
 
 export type GetTransactionsOutPortOutputDto = { transactions: Array<string> };
