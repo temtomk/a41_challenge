@@ -4,7 +4,6 @@ import {
   filter,
   flat,
   map,
-  peek,
   pipe,
   toArray,
   toAsync,
@@ -54,7 +53,6 @@ export class GetTransactionInfoByAddressRepository
       filter(
         (elem) => elem.to == params.address || elem.from == params.address,
       ),
-      peek((elem) => console.log(elem)),
       map((result) => ({
         to: result.to,
         from: result.from,

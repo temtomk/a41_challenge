@@ -4,7 +4,8 @@ export type GetTransactionInfoInPortInputDto = {
 };
 
 export type GetTransactionInfoInPortOutputDto = {
-  transactionSum: string;
+  receiveEth: string;
+  sendEth: string;
   fee: string;
 };
 

@@ -30,19 +30,9 @@ export class GetTransactionInfoService implements GetTransactionInfoInPort {
       blockNumber: params.blockNumber,
     });
 
-    const transactionInfo =
-      await this.getTransactionInfoByAddressOutPort.execute({
-        address: params.address,
-        transactions: transactions.transactions,
-      });
-
-    return {
-      //TODO: 어떤 의미의 입/출금 총합인지 확인
-      transactionSum: (
-        BigInt('0x' + transactionInfo.sendEth) +
-        BigInt('0x' + transactionInfo.receiveEth)
-      ).toString(16),
-      fee: transactionInfo.fee,
-    };
+    return await this.getTransactionInfoByAddressOutPort.execute({
+      address: params.address,
+      transactions: transactions.transactions,
+    });
   }
 }
