@@ -7,7 +7,7 @@ import { BlockchainModule } from './blockchain/blockchain.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `src/configs/env/.${process.env.NODE_ENV}.env`,
+      envFilePath: `.${process.env.NODE_ENV}.env`,
       isGlobal: true,
     }),
     BlockchainModule,
