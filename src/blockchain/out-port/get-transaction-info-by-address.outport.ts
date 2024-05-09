@@ -4,8 +4,8 @@ export type GetTransactionInfoByAddressOutPortInputDto = {
 };
 
 export type GetTransactionInfoByAddressOutPortOutputDto = {
-  receiveEth: string;
-  sendEth: string;
+  depositAmount: string;
+  withdrawalAmount: string;
   fee: string;
 };
 

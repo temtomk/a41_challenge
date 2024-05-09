@@ -80,9 +80,9 @@ export class GetTransactionInfoByAddressRepository
     );
 
     return {
-      receiveEth: result.receiveEth.toString(16),
-      sendEth: result.sendEth.toString(16),
-      fee: result.fee.toString(16),
+      depositAmount: '0x' + result.receiveEth.toString(16),
+      withdrawalAmount: '0x' + result.sendEth.toString(16),
+      fee: '0x' + result.fee.toString(16),
     };
   }
 }
