@@ -65,23 +65,26 @@ export class GetTransactionInfoByAddressRepository
 
     const result = getResponse.reduce(
       (acc, cur) => {
-        if (cur.to === params.address) {
-          acc.sendEth += BigInt(cur.value);
-        }
-
-        if (cur.from === params.address) {
-          acc.receiveEth += BigInt(cur.value);
-          acc.fee += BigInt(BigInt(cur.gasPrice) * BigInt(cur.gas));
+        switch (cur.to) {
+          case cur.from:
+            acc.fee += BigInt(cur.gasPrice) * BigInt(cur.gas);
+            break;
+          case params.address:
+            acc.depositAmount += BigInt(cur.value);
+            break;
+          default:
+            acc.withdrawalAmount += BigInt(cur.value);
+            acc.fee += BigInt(cur.gasPrice) * BigInt(cur.gas);
         }
 
         return acc;
       },
-      { sendEth: 0n, receiveEth: 0n, fee: 0n },
+      { withdrawalAmount: 0n, depositAmount: 0n, fee: 0n },
     );
 
     return {
-      depositAmount: '0x' + result.receiveEth.toString(16),
-      withdrawalAmount: '0x' + result.sendEth.toString(16),
+      depositAmount: '0x' + result.depositAmount.toString(16),
+      withdrawalAmount: '0x' + result.withdrawalAmount.toString(16),
       fee: '0x' + result.fee.toString(16),
     };
   }
