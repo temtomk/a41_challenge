@@ -14,7 +14,9 @@ $ bun i
 ><br>
 >You need an .env file for the INFURA_KEY.
 ><br>
->If you're running in dev mode or debug mode, you will need a .dev.env file.
+>If you're running in development mode or debug mode, you will need a .dev.env file.
+><br>
+>If you're running in production mode, you will need a .prod.env file.
 
 
 ```bash

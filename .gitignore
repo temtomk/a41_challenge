@@ -400,4 +400,4 @@ dist
 .serverless/**/*.zip
 .vscode/tasks.json
 .vscode/launch.json
-src/configs/env/.dev.env
+.dev.env
